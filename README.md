@@ -10,7 +10,7 @@ This repository provides Infrastructure as Code (IaC) for deploying a complete b
 - [x] **Contextual Compression**: Utilizes a **reranker** to improve data processing efficiency and precision.
 - [x] **Performance-Optimized Database**: Employs **Qdrant**, a vector database built in Rust for high performance.
 - [x] **Framework Utilization**: Integrates the open-source **LangChain** framework for advanced language processing capabilities.
-- [x] **Dynamic Metadata Filtering**: Passing the URL filter to the base retriever **on-the-go** os that only content from the correct URL passes to the contextual compressor.
+- [x] **Dynamic Metadata Filtering**: Passing the URL filter to the base retriever **on-the-go** so that only content from the correct URL passes to the contextual compressor.
 - [x] **Cloud Deployment**: Fully deployed on AWS for **scalability and reliability**.
 - [x] **Infrastructure as Code**: All components are managed using Terraform, ensuring **reproducibility and maintainability**.
 
