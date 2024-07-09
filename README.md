@@ -5,6 +5,7 @@ Prototype developed for the Findly RAG Challenge, featuring contextual compressi
 This repository provides Infrastructure as Code (IaC) for deploying a complete backend system using AWS services. The system is composed of six main components that form the building blocks of the REST API.
 
 ## Highlights
+- [x] **Chat Interaction**: Chat about the content of a URL through an REST API endpoint that remebers the chat history corresponding to a session ID.
 - [x] **Cost Efficiency**: Avoids reindexing unchanged webpages, reducing costly external API calls.
 - [x] **Contextual Compression**: Utilizes a **reranker** to improve data processing efficiency and precision.
 - [x] **Performance-Optimized Database**: Employs **Qdrant**, a vector database built in Rust for high performance.
@@ -161,7 +162,7 @@ The project is divided into the following components:
 
 **DynamoDB Tables**:
 - [`url-content-hash_DynamoDB-table`](url-content-hash_DynamoDB-table): Maintains a hash of URL contents for quick lookup.
-- [`session-id-history_DynamoDB-table`]: Stores session IDs and their chat history.
+- [`session-id-history_DynamoDB-table`](session-id-history_DynamoDB-table): Stores session IDs and their chat history.
 
 **API Gateway**:
 - [`api-gateway-rest-api`](api-gateway-rest-api): Manages REST API interfacing for the Lambda functions.
@@ -169,6 +170,7 @@ The project is divided into the following components:
 Each component's code is organized in the repository as follows:
 - **Terraform Configuration**: Located in the `terraform` subfolder.
 - **Lambda Function Code** (if applicable): Python 3.12 code in the `code` subfolder.
+- **Lambda Layer Requirements** (if applicable): Python 3.12 requirements.txt file.
 
 ## Deployment Instructions
 ### AWS Lambda Function (if applicable)
@@ -230,6 +232,7 @@ Follow these steps to deploy the components using Terraform:
 - Ensure that the `variables.tf` and `main.tf` files are updated with the necessary configurations specific to your environment.
 - Manually create the necessary secrets (e.g., API keys) in AWS Secrets Manager prior to deployment. The AWS Lambda functions require the following variables set:
   - `CONTENT_HASH_TABLE_NAME`
+  - `SESSION_ID_HISTORY_TABLE_NAME`
   - `QDRANT_URL`
   - `QDRANT_API_KEY`
   - `QDRANT_COLLECTION_NAME`
