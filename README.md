@@ -98,7 +98,38 @@ Each component's code is organized in the repository as follows:
 - **Lambda Function Code** (if applicable): Python 3.12 code in the `code` subfolder.
 
 ## Deployment Instructions
+### AWS Lambda Function (if applicable)
+1. Navigate to the `code` directory:
+   ```bash
+   cd code
+   ```
+2. Remove old `project.zip` (if applicable):
+   ```bash
+   rm ../terraform/project.zip
+   ```
+3. Create zip file:
+   ```bash
+   zip -r ../terraform/project.zip .
+   ```
 
+### AWS Lambda Layer (if applicable)
+1. Navigate to the `layer` directory:
+   ```bash
+   cd layer
+   ```
+2. Remove old `{layer-name}.zip` (if applicable):
+   ```bash
+   rm ../terraform/{layer-name}.zip
+   ```
+3. Install `requirements.txt`:
+   ```bash
+   python3.12 -m pip install -r requirements.txt --target python/lib/python3.12/site-packages/
+   ```
+4. Create zip file:
+   ```bash
+   zip -r ../terraform/{layer-name}.zip python/
+   ```
+### Terraform
 Follow these steps to deploy the components using Terraform:
 
 1. Navigate to the Terraform configuration directory:
