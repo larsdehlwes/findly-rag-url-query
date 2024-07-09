@@ -52,7 +52,7 @@ Returns:
 
 **Example Request**
 ```bash
-curl -H "x-api-key: ..." -X POST -d '{"url": "https://en.wikipedia.org/wiki/Brazil", "query": "What is the population of the country?"}' https://ethsgne5kk.execute-api.us-east-1.amazonaws.com/v1/ask
+curl -H "x-api-key: ..." -X POST -d '{"url": "https://en.wikipedia.org/wiki/Brazil", "query": "What is the population of Brazil?"}' https://ethsgne5kk.execute-api.us-east-1.amazonaws.com/v1/ask
 ```
 **Example Output**
 ```bash
