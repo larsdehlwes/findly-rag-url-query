@@ -57,14 +57,14 @@ curl -H "x-api-key: ..." -X POST -d '{"url": "https://en.wikipedia.org/wiki/Braz
 **Example Output**
 ```bash
 {
-  "question": "What is the population of the country?",
+  "question": "What is the population of Brazil?",
   "url": "https://en.wikipedia.org/wiki/Brazil",
-  "last_retrieved": "2024-07-07T14:22:31.743594",
-  "content_hash": "e7f68467391fafc5b50a9c820b623a17",
-  "answer": "The context provided does not contain any information about the population of the country."
+  "last_retrieved": "2024-07-09T01:28:58.292102+00:00",
+  "content_hash": "ca985af177cedca9913f0b919ffac190",
+  "answer": "The population of Brazil, as recorded by the 2008 PNAD, was approximately 190 million."
 }
 ```
-(Note that information indeed does not appear in the continuous text, but rather in the informative table. In order to extract table data reliably, more development is needed. See below in [Next Steps](#next-steps))
+(Note that a more recent information indeed does not appear in the continuous text, but rather in the informative table. In order to extract table data reliably, more development is needed. See below in [Next Steps](#next-steps))
 
 ## External Services
 - [Voyage AI](https://www.voyageai.com/):
