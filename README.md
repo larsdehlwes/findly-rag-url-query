@@ -168,5 +168,6 @@ Follow these steps to deploy the components using Terraform:
 - [ ] Rewrite AWS Lambda Handlers using Flask.
 - [ ] Write OpenAPI documentation of the endpoints.
 - [ ] Use webhooks in order to overcome the REST API timeout of 29 seconds.
+- [ ] Extract information from tables reliably with Beautifulsoup.
 - [ ] Deploy [Qdrant](https://qdrant.tech/) as a container on an EC2 instance via Terraform. (If it makes sense in terms of cost reduction.)
 - [ ] Deploy dedicated instances of open-source Huggingface LLMs for embedding, reranking and chat. (If it makes sense in terms of cost reduction.)
