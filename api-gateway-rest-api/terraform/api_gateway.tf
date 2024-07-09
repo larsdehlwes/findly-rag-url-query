@@ -86,10 +86,44 @@ resource "aws_lambda_permission" "apigw_ask" {
   source_arn = "${aws_api_gateway_rest_api.findly_rest_api.execution_arn}/*/POST/ask"
 }
 
+resource "aws_api_gateway_resource" "chat_endpoint" {
+  rest_api_id = "${aws_api_gateway_rest_api.findly_rest_api.id}"
+  parent_id   = "${aws_api_gateway_rest_api.findly_rest_api.root_resource_id}"
+  path_part        = "chat"
+}
+
+resource "aws_api_gateway_method" "chat_endpoint" {
+  rest_api_id   = "${aws_api_gateway_rest_api.findly_rest_api.id}"
+  resource_id   = "${aws_api_gateway_resource.chat_endpoint.id}"
+  http_method   = "POST"
+  authorization = "NONE"
+  api_key_required = true
+}
+
+resource "aws_api_gateway_integration" "chat_lambda" {
+  rest_api_id = "${aws_api_gateway_rest_api.findly_rest_api.id}"
+  resource_id = "${aws_api_gateway_method.chat_endpoint.resource_id}"
+  http_method = "${aws_api_gateway_method.chat_endpoint.http_method}"
+
+  integration_http_method = "POST"
+  type                    = "AWS_PROXY"
+  uri                     = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${var.aws_region}:${var.aws_account}:function:chat/invocations"
+}
+
+resource "aws_lambda_permission" "apigw_chat" {
+  statement_id  = "AllowAPIGatewayInvoke"
+  action        = "lambda:InvokeFunction"
+  function_name = "chat"
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "${aws_api_gateway_rest_api.findly_rest_api.execution_arn}/*/POST/chat"
+}
+
 resource "aws_api_gateway_deployment" "findly_api_deployment" {
   depends_on = [
     aws_api_gateway_integration.index_url_lambda,
     aws_api_gateway_integration.ask_lambda,
+    aws_api_gateway_integration.chat_lambda,
   ]
 
   rest_api_id = "${aws_api_gateway_rest_api.findly_rest_api.id}"
