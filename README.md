@@ -14,9 +14,9 @@ This repository provides Infrastructure as Code (IaC) for deploying a complete b
 - [x] **Infrastructure as Code**: All components are managed using Terraform, ensuring **reproducibility and maintainability**.
 
 ## Try It Out
-REST API: [`https://ethsgne5kk.execute-api.us-east-1.amazonaws.com/v1`](https://ethsgne5kk.execute-api.us-east-1.amazonaws.com/v1)
+REST API: [`https://yy56jqg7si.execute-api.us-east-1.amazonaws.com/v1`](https://yy56jqg7si.execute-api.us-east-1.amazonaws.com/v1)
 
-### Endpoint: [`/index_url`](https://ethsgne5kk.execute-api.us-east-1.amazonaws.com/v1/index_url)
+### Endpoint: [`/index_url`](https://yy56jqg7si.execute-api.us-east-1.amazonaws.com/v1/index_url)
 Indexes a given URL asynchronously. First, the text of the webpage is extracted and hashed. If the current content of the URL has not been indexed yet, the content is split into chunks (with some overlap), which are then asynchronously indexed using the embeddings from [`voyage-multilingual-2`](https://docs.voyageai.com/docs/embeddings) and inserted into the [Qdrant](https://qdrant.tech/) vector database. This API method always returns immediately with status code 200 and empty response body, not depending on whether or not the content has already been indexed before. Due to this fact, it is recommended to wait at least 30 seconds before asking a question to a URL that was just indexed.
 
 API Key Required: yes
@@ -28,10 +28,10 @@ Required Keys:
   
 **Example Request**
 ```bash
-curl -H "x-api-key: ..." -X POST -d '{"url": "https://en.wikipedia.org/wiki/Brazil"}' https://ethsgne5kk.execute-api.us-east-1.amazonaws.com/v1/index_url
+curl -H "x-api-key: ..." -X POST -d '{"url": "https://en.wikipedia.org/wiki/Brazil"}' https://yy56jqg7si.execute-api.us-east-1.amazonaws.com/v1/index_url
 ```
 
-### Endpoint: [`/ask`](https://ethsgne5kk.execute-api.us-east-1.amazonaws.com/v1/ask)
+### Endpoint: [`/ask`](https://yy56jqg7si.execute-api.us-east-1.amazonaws.com/v1/ask)
 Answers a question based on the content of a given, previously indexed, URL. This is done by calculating the embedding of the given question with respect to [`voyage-multilingual-2`](https://docs.voyageai.com/docs/embeddings). In the following, the 20 closest most vectors (with respect to the cosine similarity measure) corresponding to the content chunks of the given URL are extracted from the [Qdrant](https://qdrant.tech/) vector database and passed on to the contextual compressor, which then ranks the top 5 matching documents using the [`rerank-1`](https://docs.voyageai.com/docs/reranker) reranker. Finally a the [GPT-4o](https://platform.openai.com/docs/models/gpt-4o) LLM is invoked in order to extract the desired information from the top matching documents and answer the question.
 This API method waits until the answer is found. However, the timeout is limited to 29s by the REST API. 
 
@@ -52,7 +52,7 @@ Returns:
 
 **Example Request**
 ```bash
-curl -H "x-api-key: ..." -X POST -d '{"url": "https://en.wikipedia.org/wiki/Brazil", "query": "What is the population of Brazil?"}' https://ethsgne5kk.execute-api.us-east-1.amazonaws.com/v1/ask
+curl -H "x-api-key: ..." -X POST -d '{"url": "https://en.wikipedia.org/wiki/Brazil", "query": "What is the population of Brazil?"}' https://yy56jqg7si.execute-api.us-east-1.amazonaws.com/v1/ask
 ```
 **Example Output**
 ```bash
@@ -65,6 +65,78 @@ curl -H "x-api-key: ..." -X POST -d '{"url": "https://en.wikipedia.org/wiki/Braz
 }
 ```
 (Note that a more recent information indeed does not appear in the continuous text, but rather in the informative table. In order to extract table data reliably, more development is needed. See below in [Next Steps](#next-steps))
+
+### Endpoint: [`/chat`](https://yy56jqg7si.execute-api.us-east-1.amazonaws.com/v1/chat)
+Similar to the `/ask` endpoint, however, it allows for a chat-like interaction about the content of an URL by accessing the chat history of the session.
+
+API Key Required: yes
+
+HTTP Method: `POST`
+
+Required Keys: 
+- "url": The URL based on which the question should be answered.
+- "query": The question that should be answered.
+
+Optional Keys:
+- "session_id": Provide the returned session ID to continue a chat.
+
+Returns:
+- "question": The original question.
+- "url": The URL based on which the question was answered.
+- "last_retrieved": The datetime in ISO format at which the URL was last retrieved.
+- "content_hash": The hash of the last version of the content of the URL
+- "session_id": The session id.
+- "chat_history": String represention of the chat history.
+- "answer": The answer provided by the LLM.
+
+**Example Request 1**
+```bash
+curl -H "x-api-key: ..." -X POST -d '{"url": "https://en.wikipedia.org/wiki/Brazil", "query": "What is the population of Brazil?"}' https://yy56jqg7si.execute-api.us-east-1.amazonaws.com/v1/chat
+```
+**Example Output 1**
+```bash
+{
+  "question": "What is the population of Brazil?",
+  "url": "https://en.wikipedia.org/wiki/Brazil",
+  "last_retrieved": "2024-07-09T01:28:58.292102+00:00",
+  "content_hash": "ca985af177cedca9913f0b919ffac190",
+  "session_id": "32b6c692-e010-48e0-ae58-00b67bc4d1fb",
+  "chat_history": "[HumanMessage(content='What is the population of Brazil?'), AIMessage(content='As of the 2008 PNAD, the population of Brazil was approximately 190 million.')]",
+  "answer": "As of the 2008 PNAD, the population of Brazil was approximately 190 million."
+}
+```
+**Example Request 2**
+```bash
+curl -H "x-api-key: ..." -X POST -d '{"url": "https://en.wikipedia.org/wiki/Brazil", "query": "According to who?", "session_id": "32b6c692-e010-48e0-ae58-00b67bc4d1fb"}' https://yy56jqg7si.execute-api.us-east-1.amazonaws.com/v1/chat  
+```
+**Example Output 2**
+```bash
+{
+  "question": "According to who?",
+  "url": "https://en.wikipedia.org/wiki/Brazil",
+  "last_retrieved": "2024-07-09T01:28:58.292102+00:00",
+  "content_hash": "ca985af177cedca9913f0b919ffac190",
+  "session_id": "32b6c692-e010-48e0-ae58-00b67bc4d1fb",
+  "chat_history": "[HumanMessage(content='What is the population of Brazil?'), AIMessage(content='As of the 2008 PNAD, the population of Brazil was approximately 190 million.'), HumanMessage(content='According to who?'), AIMessage(content='According to the 2008 PNAD (Pesquisa Nacional por Amostra de Domic\u00edlios) conducted by the IBGE (Instituto Brasileiro de Geografia e Estat\u00edstica).')]",
+  "answer": "According to the 2008 PNAD (Pesquisa Nacional por Amostra de Domic\u00edlios) conducted by the IBGE (Instituto Brasileiro de Geografia e Estat\u00edstica)."
+}
+```
+**Example Request 3**
+```bash
+curl -H "x-api-key: ..." -X POST -d '{"url": "https://en.wikipedia.org/wiki/Brazil", "query": "When was the Treaty of Tordesillas?", "session_id": "32b6c692-e010-48e0-ae58-00b67bc4d1fb"}' https://yy56jqg7si.execute-api.us-east-1.amazonaws.com/v1/chat
+```
+**Example Output 3**
+```bash
+{
+  "question": "When was the Treaty of Tordesillas?",
+  "url": "https://en.wikipedia.org/wiki/Brazil", "last_retrieved":
+  "2024-07-09T01:28:58.292102+00:00",
+  "content_hash": "ca985af177cedca9913f0b919ffac190",
+  "session_id": "32b6c692-e010-48e0-ae58-00b67bc4d1fb",
+  "chat_history": "[HumanMessage(content='What is the population of Brazil?'), AIMessage(content='As of the 2008 PNAD, the population of Brazil was approximately 190 million.'), HumanMessage(content='According to who?'), AIMessage(content='According to the 2008 PNAD (Pesquisa Nacional por Amostra de Domic\u00edlios) conducted by the IBGE (Instituto Brasileiro de Geografia e Estat\u00edstica).'), HumanMessage(content='When was the Treaty of Tordesillas?'), AIMessage(content='The Treaty of Tordesillas was signed in 1494.')]",
+  "answer": "The Treaty of Tordesillas was signed in 1494."
+}
+```
 
 ## External Services
 - [Voyage AI](https://www.voyageai.com/):
@@ -80,7 +152,8 @@ The project is divided into the following components:
 
 **API Endpoints** (Deployed as AWS Lambda Functions):
 - [`/index_url`](index_url): Endpoint for indexing a URL.
-- [`/ask`](ask): Endpoint for querying a URL.
+- [`/ask`](ask): Endpoint for asking about the content of a URL.
+- [`/chat`](chat): Endpoint for chatting about the content of a URL.
 
 **Lambda Layers**:
 - [`langchain-layer`](langchain-layer): Contains dependencies for language processing.
@@ -88,7 +161,7 @@ The project is divided into the following components:
 
 **DynamoDB Tables**:
 - [`url-content-hash_DynamoDB-table`](url-content-hash_DynamoDB-table): Maintains a hash of URL contents for quick lookup.
-- `session-id-history_DynamoDB-table`: Stores session IDs and their chat history. (Not yet implemented...)
+- [`session-id-history_DynamoDB-table`]: Stores session IDs and their chat history.
 
 **API Gateway**:
 - [`api-gateway-rest-api`](api-gateway-rest-api): Manages REST API interfacing for the Lambda functions.
@@ -164,7 +237,7 @@ Follow these steps to deploy the components using Terraform:
   - `OPENAI_API_KEY`
 
 ## Next Steps
-- [ ] Implement chat endpoint with session ID in order to enable chat history.
+- [x] Implement chat endpoint with session ID in order to enable chat history.
 - [ ] Rewrite AWS Lambda Handlers using Flask.
 - [ ] Write OpenAPI documentation of the endpoints.
 - [ ] Use webhooks in order to overcome the REST API timeout of 29 seconds.
